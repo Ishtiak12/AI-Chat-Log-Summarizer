@@ -38,7 +38,8 @@ python -m spacy download en_core_web_sm
  ![alt text](1.png)
 ![alt text](2.png)
 ![alt text](3.png)
-![alt text](4.png)
+
+<img width="590" alt="4" src="https://github.com/user-attachments/assets/1210eb78-e335-451d-ba02-996eb152ad0d" />
 
 
 👤 Author
