@@ -37,6 +37,10 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+        .summary-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #6366f1;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -121,6 +125,20 @@
                         <span class="bg-indigo-100 text-indigo-800 text-sm font-semibold px-3 py-1 rounded-full">
                             {{ summary.total_messages }} messages
                         </span>
+                    </div>
+
+                    <!-- Conversation Summary -->
+                    <div class="mb-8">
+                        <div class="summary-box p-6 rounded-lg mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-comment-dots text-indigo-500 mr-2"></i> Conversation Summary
+                            </h3>
+                            <div class="prose max-w-none">
+                                {% for line in summary.conversation_summary.split('\n') %}
+                                <p class="text-gray-700 mb-2">{{ line }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Stats Grid -->

@@ -121,6 +121,45 @@ def extract_keywords_nlp(texts, top_n=10):
     
     return keywords
 
+def generate_conversation_summary(user_msgs, ai_msgs, keywords, topics):
+    """Generate a clear summary of the conversation"""
+    summary_lines = []
+    
+    # Basic statistics
+    summary_lines.append(f"- The conversation had {len(user_msgs) + len(ai_msgs)} exchanges")
+    
+    # Nature of conversation based on topics
+    if topics:
+        main_topics = ", ".join([word for topic in topics[:2] for word in topic[:3]])
+        summary_lines.append(f"- The discussion mainly revolved around: {main_topics}")
+    elif keywords:
+        main_keywords = ", ".join([word for word, count in keywords[:3]])
+        summary_lines.append(f"- The user asked mainly about: {main_keywords}")
+    
+    # Most common keywords
+    if keywords:
+        keyword_str = ", ".join([f"{word}" for word, count in keywords[:5]])
+        summary_lines.append(f"- Most common keywords: {keyword_str}")
+    
+    return "\n".join(summary_lines)
+
+def identify_topics(texts, num_topics=3):
+    """Identify main topics using TF-IDF"""
+    try:
+        vectorizer = TfidfVectorizer(max_features=1000, stop_words='english', 
+                                   tokenizer=preprocess_text)
+        tfidf = vectorizer.fit_transform(texts)
+        feature_names = vectorizer.get_feature_names_out()
+        
+        topics = []
+        for i in range(min(num_topics, len(texts))):
+            top_features = tfidf[i].indices[tfidf[i].data.argsort()[-5:][::-1]]
+            topics.append([feature_names[j] for j in top_features])
+        
+        return topics
+    except Exception:
+        return []
+
 def summarize_chat_log(filepath):
     """Generate comprehensive NLP analysis of chat log with consistent return structure"""
     try:
@@ -140,11 +179,15 @@ def summarize_chat_log(filepath):
         }
         
         # NLP Analysis
+        keywords = extract_keywords_nlp(all_msgs)
+        topics = identify_topics(all_msgs)
+        
         nlp_results = {
             "sentiment": analyze_sentiment(all_msgs),
             "named_entities": extract_entities(all_msgs),
-            "keywords": extract_keywords_nlp(all_msgs),
-            "topics": identify_topics(all_msgs),
+            "keywords": keywords,
+            "topics": topics,
+            "conversation_summary": generate_conversation_summary(user_msgs, ai_msgs, keywords, topics),
             "example_user_msg": user_msgs[0] if user_msgs else None,
             "example_ai_msg": ai_msgs[0] if ai_msgs else None
         }
@@ -193,23 +236,6 @@ def get_combined_keywords(summaries):
             all_keywords.extend([kw[0] for kw in summary['keywords']])
     
     return Counter(all_keywords).most_common(10)
-
-def identify_topics(texts, num_topics=3):
-    """Identify main topics using TF-IDF"""
-    try:
-        vectorizer = TfidfVectorizer(max_features=1000, stop_words='english', 
-                                   tokenizer=preprocess_text)
-        tfidf = vectorizer.fit_transform(texts)
-        feature_names = vectorizer.get_feature_names_out()
-        
-        topics = []
-        for i in range(min(num_topics, len(texts))):
-            top_features = tfidf[i].indices[tfidf[i].data.argsort()[-5:][::-1]]
-            topics.append([feature_names[j] for j in top_features])
-        
-        return topics
-    except Exception:
-        return []
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

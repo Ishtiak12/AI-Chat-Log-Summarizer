@@ -35,7 +35,11 @@ pip install -r requirements.txt
 Download spaCy model:
 python -m spacy download en_core_web_sm
 
-![alt text](3.png) ![alt text](2.png) ![alt text](1.png)  
+ ![alt text](1.png)
+![alt text](2.png)
+![alt text](3.png)
+![alt text](4.png)
+
 
 👤 Author
 Ishtiak
