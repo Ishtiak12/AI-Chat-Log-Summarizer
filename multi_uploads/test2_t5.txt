@@ -1,0 +1,6 @@
+User: Hi, can you explain machine learning?
+AI: Certainly! Machine learning is a subset of AI that enables systems to learn from data.
+User: What are some common algorithms?
+AI: Popular ones include decision trees, neural networks, and SVM.
+User: Thanks!
+AI: You're welcome!

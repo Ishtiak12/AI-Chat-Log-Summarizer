@@ -1,0 +1,4 @@
+User: What's artificial intelligence?
+AI: AI is the simulation of human intelligence in machines.
+User: Give examples
+AI: Examples include chatbots and self-driving cars.

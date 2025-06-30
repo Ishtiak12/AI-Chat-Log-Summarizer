@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Chat Log Summarizer | Powered by Ishtiak</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6b46c1 0%, #3b82f6 100%);
+        }
+        .keyword-cloud span {
+            display: inline-block;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .keyword-cloud span:hover {
+            transform: scale(1.1);
+        }
+        .meter-bar {
+            height: 8px;
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+        }
+        .file-summary {
+            transition: all 0.3s ease;
+        }
+        .file-summary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-12">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-3">Chat Log Summarizer </h1>
+                <p class="text-xl md:text-2xl text-blue-100">Advanced NLP Analysis of Conversation Logs</p>
+                <div class="mt-6">
+                    <span class="inline-block bg-white text-indigo-600 px-4 py-2 rounded-full text-sm font-semibold shadow-md">
+                        <i class="fas fa-brain mr-2"></i>Powered by AI
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- Upload Section -->
+        <section class="mb-16">
+            <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Upload Your Chat Logs</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- Single File Upload -->
+                        <div class="border-2 border-dashed border-gray-200 rounded-lg p-6 hover:border-indigo-300 transition-all duration-300">
+                            <div class="text-center">
+                                <i class="fas fa-file-alt text-4xl text-indigo-500 mb-4"></i>
+                                <h3 class="text-xl font-semibold text-gray-700 mb-3">Single Chat Log</h3>
+                                <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                                    <div class="relative">
+                                        <input type="file" name="chatfile" accept=".txt" required 
+                                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                        <div class="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg border border-indigo-100">
+                                            <i class="fas fa-upload mr-2"></i>Choose File
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                        <i class="fas fa-chart-bar mr-2"></i> Analyze File
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Multiple Files Upload -->
+                        <div class="border-2 border-dashed border-gray-200 rounded-lg p-6 hover:border-indigo-300 transition-all duration-300">
+                            <div class="text-center">
+                                <i class="fas fa-folder-open text-4xl text-indigo-500 mb-4"></i>
+                                <h3 class="text-xl font-semibold text-gray-700 mb-3">Multiple Chat Logs</h3>
+                                <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                                    <div class="relative">
+                                        <input type="file" name="chatfolder" webkitdirectory directory multiple accept=".txt" 
+                                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                        <div class="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg border border-indigo-100">
+                                            <i class="fas fa-folder-plus mr-2"></i>Choose Folder
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                                        <i class="fas fa-chart-pie mr-2"></i> Analyze Folder
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {% if summary %}
+        <!-- Single File Results -->
+        <section class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            <i class="fas fa-file-alt text-indigo-500 mr-2"></i>
+                            Analysis Results for <span class="text-indigo-600">{{ summary.filename }}</span>
+                        </h2>
+                        <span class="bg-indigo-100 text-indigo-800 text-sm font-semibold px-3 py-1 rounded-full">
+                            {{ summary.total_messages }} messages
+                        </span>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <h3 class="text-sm font-medium text-blue-800 mb-1">Total Messages</h3>
+                            <p class="text-2xl font-bold text-blue-600">{{ summary.total_messages }}</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                            <h3 class="text-sm font-medium text-green-800 mb-1">User Messages</h3>
+                            <p class="text-2xl font-bold text-green-600">{{ summary.user_count }}</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                            <h3 class="text-sm font-medium text-purple-800 mb-1">AI Messages</h3>
+                            <p class="text-2xl font-bold text-purple-600">{{ summary.ai_count }}</p>
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-lg border border-amber-100">
+                            <h3 class="text-sm font-medium text-amber-800 mb-1">Avg. Length</h3>
+                            <p class="text-2xl font-bold text-amber-600">{{ "%.1f"|format(summary.avg_msg_length) }} chars</p>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Grid -->
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <!-- Sentiment Analysis -->
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-smile-beam text-green-500 mr-2"></i> Sentiment Analysis
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-green-600">Positive</span>
+                                        <span class="text-sm font-medium text-gray-600">{{ summary.sentiment.positive }} ({{ (summary.sentiment.positive / summary.total_messages * 100)|round(1) }}%)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-500 h-2 rounded-full" style="width: {{ (summary.sentiment.positive / summary.total_messages * 100)|round(1) }}%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-amber-500">Neutral</span>
+                                        <span class="text-sm font-medium text-gray-600">{{ summary.sentiment.neutral }} ({{ (summary.sentiment.neutral / summary.total_messages * 100)|round(1) }}%)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-amber-400 h-2 rounded-full" style="width: {{ (summary.sentiment.neutral / summary.total_messages * 100)|round(1) }}%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm font-medium text-red-500">Negative</span>
+                                        <span class="text-sm font-medium text-gray-600">{{ summary.sentiment.negative }} ({{ (summary.sentiment.negative / summary.total_messages * 100)|round(1) }}%)</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-red-500 h-2 rounded-full" style="width: {{ (summary.sentiment.negative / summary.total_messages * 100)|round(1) }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Keywords -->
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-key text-indigo-500 mr-2"></i> Top Keywords
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% for word, count in summary.keywords %}
+                                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium flex items-center">
+                                    {{ word }} <span class="ml-1 text-indigo-600 font-bold">{{ count }}</span>
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <!-- Named Entities -->
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-tags text-purple-500 mr-2"></i> Named Entities
+                            </h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entity</th>
+                                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        {% for entity, count in summary.named_entities %}
+                                        <tr>
+                                            <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{{ entity[0] }}</td>
+                                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{{ entity[1] }}</td>
+                                            <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{{ count }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Main Topics -->
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-comments text-blue-500 mr-2"></i> Main Topics
+                            </h3>
+                            <div class="grid gap-4">
+                                {% for topic in summary.topics %}
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h4 class="font-medium text-blue-800 mb-2">Topic {{ loop.index }}</h4>
+                                    <div class="flex flex-wrap gap-2">
+                                        {% for word in topic %}
+                                        <span class="px-2 py-1 bg-white text-blue-600 rounded text-xs font-medium shadow-sm">
+                                            {{ word }}
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Example Messages -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-user text-green-500 mr-2"></i> Example User Message
+                            </h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-gray-700 italic">"{{ summary.example_user_msg }}"</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-robot text-purple-500 mr-2"></i> Example AI Response
+                            </h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-gray-700 italic">"{{ summary.example_ai_msg }}"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if multi_summary %}
+        <!-- Multiple Files Results -->
+        <section class="mb-16">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">
+                            <i class="fas fa-folder-open text-indigo-500 mr-2"></i>
+                            Combined Analysis of {{ multi_summary.total_files }} Chat Logs
+                        </h2>
+                        <span class="bg-indigo-100 text-indigo-800 text-sm font-semibold px-3 py-1 rounded-full">
+                            {{ multi_summary.total_messages }} total messages
+                        </span>
+                    </div>
+
+                    <!-- Combined Stats -->
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
+                            <h3 class="text-lg font-medium text-indigo-800 mb-2">Total Messages</h3>
+                            <p class="text-4xl font-bold text-indigo-600">{{ multi_summary.total_messages }}</p>
+                        </div>
+                        <div class="bg-purple-50 p-6 rounded-xl border border-purple-100">
+                            <h3 class="text-lg font-medium text-purple-800 mb-2">Average per File</h3>
+                            <p class="text-4xl font-bold text-purple-600">{{ "%.1f"|format(multi_summary.avg_messages_per_file) }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Keyword Cloud -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-cloud text-blue-500 mr-2"></i> Most Common Keywords
+                        </h3>
+                        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="keyword-cloud text-center">
+                                {% for word, count in multi_summary.most_common_keywords %}
+                                <span class="inline-block px-2 py-1 rounded-full" 
+                                      style="font-size: {{ 14 + count * 2 }}px;
+                                             color: hsl({{ (loop.index * 50) % 360 }}, 70%, 50%);
+                                             background-color: hsl({{ (loop.index * 50) % 360 }}, 70%, 90%);">
+                                    {{ word }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Individual File Summaries -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-file-alt text-indigo-500 mr-2"></i> Individual File Summaries
+                        </h3>
+                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {% for summary in multi_summary.file_summaries %}
+                            <div class="file-summary bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-semibold text-gray-800 truncate">{{ summary.filename }}</h4>
+                                    <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
+                                        {{ summary.total_messages }} msgs
+                                    </span>
+                                </div>
+                                
+                                <div class="flex justify-between text-sm text-gray-600 mb-3">
+                                    <span><i class="fas fa-user text-green-500 mr-1"></i> {{ summary.user_count }}</span>
+                                    <span><i class="fas fa-robot text-purple-500 mr-1"></i> {{ summary.ai_count }}</span>
+                                </div>
+                                
+                                <div class="flex justify-between mb-3">
+                                    <span class="text-xs font-medium text-green-600">
+                                        <i class="fas fa-smile"></i> {{ summary.sentiment.positive }}
+                                    </span>
+                                    <span class="text-xs font-medium text-amber-500">
+                                        <i class="fas fa-meh"></i> {{ summary.sentiment.neutral }}
+                                    </span>
+                                    <span class="text-xs font-medium text-red-500">
+                                        <i class="fas fa-frown"></i> {{ summary.sentiment.negative }}
+                                    </span>
+                                </div>
+                                
+                                <div class="flex flex-wrap gap-1">
+                                    {% for word, count in summary.keywords[:4] %}
+                                    <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full text-xs">
+                                        {{ word }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="gradient-bg text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="#" class="text-white hover:text-blue-200">
+                    <i class="fab fa-github text-xl"></i>
+                </a>
+                <a href="#" class="text-white hover:text-blue-200">
+                    <i class="fab fa-twitter text-xl"></i>
+                </a>
+                <a href="#" class="text-white hover:text-blue-200">
+                    <i class="fab fa-linkedin text-xl"></i>
+                </a>
+            </div>
+            <p class="text-sm md:text-base">
+                <span class="font-medium">Chat Log Summarizer</span> | 
+                <span>©Ishtiak Rafi</span> | 
+                <span>Powered by NLP and Flask</span>
+            </p>
+            <p class="text-xs text-blue-100 mt-2">
+                <i class="fas fa-code"></i> with <i class="fas fa-heart text-red-300"></i> for AI enthusiasts
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

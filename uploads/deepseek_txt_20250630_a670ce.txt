@@ -1,0 +1,10 @@
+User: Hi, can you explain artificial intelligence?
+AI: Sure! Artificial intelligence (AI) refers to machines designed to perform tasks that typically require human intelligence.
+User: What are some applications of AI?
+AI: AI is used in chatbots, self-driving cars, recommendation systems, and medical diagnosis.
+User: How does machine learning relate to AI?
+AI: Machine learning is a subset of AI where systems learn from data without explicit programming.
+User: That's interesting! Can you recommend resources to learn more?
+AI: Certainly! Check out books like "Artificial Intelligence: A Modern Approach" or online courses on Coursera.
+User: Thanks for your help!
+AI: You're welcome! Let me know if you have more questions.

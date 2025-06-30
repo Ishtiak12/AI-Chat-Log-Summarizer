@@ -1,0 +1,3 @@
+This chat doesn't follow the proper format
+No User: or AI: prefixes here
+Just random text

@@ -1,0 +1,4 @@
+User: Explain deep learning
+AI: Deep learning uses neural networks with multiple layers.
+User: How is it different from ML?
+AI: It handles more complex patterns automatically.
